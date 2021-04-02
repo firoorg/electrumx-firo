@@ -1357,8 +1357,6 @@ class DeserializerZcoin(Deserializer):
             )
 
         return tx_input
-
-
 class DeserializerXaya(DeserializerSegWit, DeserializerAuxPow):
     """Deserializer class for the Xaya network
 

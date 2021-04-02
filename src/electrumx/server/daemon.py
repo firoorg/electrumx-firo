@@ -571,7 +571,7 @@ class SmartCashDaemon(Daemon):
         return await self._send_single('smartrewards', params)
 
 
-class ZcoinMtpDaemon(Daemon):
+class FiroMtpDaemon(Daemon):
 
     def strip_mtp_data(self, raw_block):
         if self.coin.is_mtp(raw_block):
@@ -598,3 +598,15 @@ class ZcoinMtpDaemon(Daemon):
     async def protx(self, params):
         '''Set of commands to execute ProTx related actions.'''
         return await self._send_single('protx', params)
+
+    async def getanonymityset(self, params):
+        return await self._send_single('getanonymityset', params)
+
+    async def getmintmetadata(self, params):
+        return await self._send_single('getmintmetadata', params)
+
+    async def getusedcoinserials(self):
+        return await self._send_single('getusedcoinserials')
+
+    async def getlatestcoinids(self):
+        return await self._send_single('getlatestcoinids')

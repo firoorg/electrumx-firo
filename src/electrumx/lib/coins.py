@@ -50,7 +50,8 @@ import electrumx.server.block_processor as block_proc
 import electrumx.server.daemon as daemon
 from electrumx.server.session import (ElectrumX, DashElectrumX,
                                       SmartCashElectrumX, AuxPoWElectrumX,
-                                      NameIndexElectrumX, NameIndexAuxPoWElectrumX)
+                                      NameIndexElectrumX, NameIndexAuxPoWElectrumX,
+                                      FiroElectrumX)
 
 
 @dataclass(slots=True)
@@ -2592,9 +2593,9 @@ class PacTestnet(Pac):
     RPC_PORT = 17111
 
 
-class Zcoin(Coin):
-    NAME = "Zcoin"
-    SHORTNAME = "XZC"
+class Firo(Coin):
+    NAME = "Firo"
+    SHORTNAME = "FIRO"
     NET = "mainnet"
     P2PKH_VERBYTE = bytes.fromhex("52")
     P2SH_VERBYTES = (bytes.fromhex("07"),)
@@ -2613,9 +2614,9 @@ class Zcoin(Coin):
     MTP_HEADER_DATA_START = Coin.BASIC_HEADER_SIZE + MTP_HEADER_EXTRA_SIZE
     MTP_HEADER_DATA_END = MTP_HEADER_DATA_START + MTP_HEADER_DATA_SIZE
     STATIC_BLOCK_HEADERS = False
-    SESSIONCLS = DashElectrumX
-    DAEMON = daemon.ZcoinMtpDaemon
-    DESERIALIZER = lib_tx.DeserializerZcoin
+    SESSIONCLS = FiroElectrumX
+    DAEMON = daemon.FiroMtpDaemon
+    DESERIALIZER = lib_tx_dash.DeserializerFiro
     PEERS = [
         'electrum.polispay.com'
     ]
@@ -2646,16 +2647,16 @@ class Zcoin(Coin):
         return double_sha256(header[:sz])
 
 
-class ZcoinTestnet(Zcoin):
-    SHORTNAME = "tXZC"
+class FiroTestnet(Firo):
+    SHORTNAME = "tFIRO"
     NET = "testnet"
     XPUB_VERBYTES = bytes.fromhex("043587cf")
     XPRV_VERBYTES = bytes.fromhex("04358394")
     P2PKH_VERBYTE = bytes.fromhex("41")
     P2SH_VERBYTES = (bytes.fromhex("b2"),)
     WIF_BYTE = bytes.fromhex("b9")
-    GENESIS_HASH = '1e3487fdb1a7d46dac3e8f3e58339c6e' \
-                   'ff54abf6aef353485f3ed64250a35e89'
+    GENESIS_HASH = 'aa22adcc12becaf436027ffe62a8fb21' \
+                   'b234c58c23865291e5dc52cf53f64fca'
     REORG_LIMIT = 8000
     RPC_PORT = 18888
 
