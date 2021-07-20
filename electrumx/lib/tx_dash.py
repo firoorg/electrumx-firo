@@ -418,7 +418,64 @@ class TxInputFiro(namedtuple("TxInput", "prev_hash prev_idx script sequence")):
         '''Test if an input is generation/coinbase like'''
         return self.prev_hash == ZERO #Treat Zerocoin and Sigma inputs as coinbase
 
+class FiroLelantusTx(namedtuple("FiroLelantusTx", "lelantusData")):
+    def serialize(self):
+        res = (
+            self.lelantusData
+        )
+        return res
+
+    @classmethod
+    def read_tx_extra(cls, deser):
+        tx = FiroLelantusTx(deser. binary[deser.cursor:])
+        deser.cursor = deser.binary_length
+        return tx
+
 class DeserializerFiro(DeserializerDash):
+    LELANTUS_TX = 8
+    SPEC_TX_HANDLERS = {
+        DeserializerDash.PRO_REG_TX: DashProRegTx,
+        DeserializerDash.PRO_UP_SERV_TX: DashProUpServTx,
+        DeserializerDash.PRO_UP_REG_TX: DashProUpRegTx,
+        DeserializerDash.PRO_UP_REV_TX: DashProUpRevTx,
+        DeserializerDash.CB_TX: DashCbTx,
+
+        LELANTUS_TX: FiroLelantusTx
+    }
+
+    def read_tx(self):
+        header = self._read_le_uint32()
+        tx_type = header >> 16  # DIP2 tx type
+        if tx_type:
+            version = header & 0x0000ffff
+        else:
+            version = header
+
+        if tx_type and version < 3:
+            version = header
+            tx_type = 0
+
+        inputs = self._read_inputs()
+        outputs = self._read_outputs()
+        locktime = self._read_le_uint32()
+        if tx_type:
+            extra_payload_size = self._read_varint()
+            end = self.cursor + extra_payload_size
+            spec_tx_class = DeserializerFiro.SPEC_TX_HANDLERS.get(tx_type)
+            if spec_tx_class:
+                read_method = getattr(spec_tx_class, 'read_tx_extra', None)
+                extra_payload = read_method(self)
+                if tx_type == DeserializerFiro.LELANTUS_TX:
+                    print("Extrapayload: " + str(len(extra_payload)) )
+                assert isinstance(extra_payload, spec_tx_class)
+            else:
+                extra_payload = self._read_nbytes(extra_payload_size)
+            assert self.cursor == end
+        else:
+            extra_payload = b''
+        tx = DashTx(version, inputs, outputs, locktime, tx_type, extra_payload)
+        return tx
+
     def _read_input(self):
         tx_input = TxInputFiro(
             self._read_nbytes(32),   # prev_hash
