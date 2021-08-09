@@ -98,7 +98,7 @@ class DashProRegTx(namedtuple("DashProRegTx",
         )
 
     @classmethod
-    def read_tx_extra(cls, deser):
+    def read_tx_extra(cls, deser, extra_payload_lengh):
         return DashProRegTx(
             deser._read_le_uint16(),                    # version
             deser._read_le_uint16(),                    # type
@@ -137,7 +137,7 @@ class DashProUpServTx(namedtuple("DashProUpServTx",
         )
 
     @classmethod
-    def read_tx_extra(cls, deser):
+    def read_tx_extra(cls, deser, extra_payload_lengh):
         return DashProUpServTx(
             deser._read_le_uint16(),                    # version
             deser._read_nbytes(32),                     # proTxHash
@@ -171,7 +171,7 @@ class DashProUpRegTx(namedtuple("DashProUpRegTx",
         )
 
     @classmethod
-    def read_tx_extra(cls, deser):
+    def read_tx_extra(cls, deser, extra_payload_lengh):
         return DashProUpRegTx(
             deser._read_le_uint16(),                    # version
             deser._read_nbytes(32),                     # proTxHash
@@ -201,7 +201,7 @@ class DashProUpRevTx(namedtuple("DashProUpRevTx",
         )
 
     @classmethod
-    def read_tx_extra(cls, deser):
+    def read_tx_extra(cls, deser, extra_payload_lengh):
         return DashProUpRevTx(
             deser._read_le_uint16(),                    # version
             deser._read_nbytes(32),                     # proTxHash
@@ -227,7 +227,7 @@ class DashCbTx(namedtuple("DashCbTx", "version height merkleRootMNList "
         return res
 
     @classmethod
-    def read_tx_extra(cls, deser):
+    def read_tx_extra(cls, deser, extra_payload_lengh):
         version = deser._read_le_uint16()
         height = deser._read_le_uint32()
         merkleRootMNList = deser._read_nbytes(32)
@@ -251,7 +251,7 @@ class DashSubTxRegister(namedtuple("DashSubTxRegister",
         )
 
     @classmethod
-    def read_tx_extra(cls, deser):
+    def read_tx_extra(cls, deser, extra_payload_lengh):
         return DashSubTxRegister(
             deser._read_le_uint16(),                    # version
             deser._read_varbytes(),                     # userName
@@ -271,7 +271,7 @@ class DashSubTxTopup(namedtuple("DashSubTxTopup",
         )
 
     @classmethod
-    def read_tx_extra(cls, deser):
+    def read_tx_extra(cls, deser, extra_payload_lengh):
         return DashSubTxTopup(
             deser._read_le_uint16(),                    # version
             deser._read_nbytes(32)                      # regTxHash
@@ -297,7 +297,7 @@ class DashSubTxResetKey(namedtuple("DashSubTxResetKey",
         )
 
     @classmethod
-    def read_tx_extra(cls, deser):
+    def read_tx_extra(cls, deser, extra_payload_lengh):
         return DashSubTxResetKey(
             deser._read_le_uint16(),                    # version
             deser._read_nbytes(32),                     # regTxHash
@@ -325,7 +325,7 @@ class DashSubTxCloseAccount(namedtuple("DashSubTxCloseAccount",
         )
 
     @classmethod
-    def read_tx_extra(cls, deser):
+    def read_tx_extra(cls, deser, extra_payload_lengh):
         return DashSubTxCloseAccount(
             deser._read_le_uint16(),                    # version
             deser._read_nbytes(32),                     # regTxHash
@@ -426,9 +426,9 @@ class FiroLelantusTx(namedtuple("FiroLelantusTx", "lelantusData")):
         return res
 
     @classmethod
-    def read_tx_extra(cls, deser):
-        tx = FiroLelantusTx(deser. binary[deser.cursor:])
-        deser.cursor = deser.binary_length
+    def read_tx_extra(cls, deser, extra_payload_lengh):
+        tx = FiroLelantusTx(deser.binary[deser.cursor:deser.cursor + extra_payload_lengh])
+        deser.cursor += extra_payload_lengh
         return tx
 
 class DeserializerFiro(DeserializerDash):
@@ -464,9 +464,7 @@ class DeserializerFiro(DeserializerDash):
             spec_tx_class = DeserializerFiro.SPEC_TX_HANDLERS.get(tx_type)
             if spec_tx_class:
                 read_method = getattr(spec_tx_class, 'read_tx_extra', None)
-                extra_payload = read_method(self)
-                if tx_type == DeserializerFiro.LELANTUS_TX:
-                    print("Extrapayload: " + str(len(extra_payload)) )
+                extra_payload = read_method(self, extra_payload_size)
                 assert isinstance(extra_payload, spec_tx_class)
             else:
                 extra_payload = self._read_nbytes(extra_payload_size)
