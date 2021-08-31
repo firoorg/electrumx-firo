@@ -574,7 +574,7 @@ class SmartCashDaemon(Daemon):
 class FiroMtpDaemon(Daemon):
 
     def strip_mtp_data(self, raw_block):
-        if self.coin.is_mtp(raw_block):
+        if self.coin.is_mtp(raw_block) and not self.coin.is_progpow(raw_block):
             return \
                 raw_block[:self.coin.MTP_HEADER_DATA_START*2] + \
                 raw_block[self.coin.MTP_HEADER_DATA_END*2:]

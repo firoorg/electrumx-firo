@@ -38,6 +38,7 @@ from hashlib import sha256
 from typing import Sequence, Tuple, Optional
 
 import electrumx.lib.util as util
+from electrumx.lib.util import unpack_le_uint32_from, hex_to_bytes
 from electrumx.lib.hash import Base58, double_sha256, hash_to_hex_str
 from electrumx.lib.hash import HASHX_LEN, hex_str_to_hash
 from electrumx.lib.script import (_match_ops, Script, ScriptError,
@@ -2613,6 +2614,7 @@ class Firo(Coin):
     MTP_HEADER_DATA_SIZE = 198864
     MTP_HEADER_DATA_START = Coin.BASIC_HEADER_SIZE + MTP_HEADER_EXTRA_SIZE
     MTP_HEADER_DATA_END = MTP_HEADER_DATA_START + MTP_HEADER_DATA_SIZE
+    PROGPOW_HEADER_EXTRA_SIZE = 40
     STATIC_BLOCK_HEADERS = False
     SESSIONCLS = FiroElectrumX
     DAEMON = daemon.FiroMtpDaemon
@@ -2623,7 +2625,6 @@ class Firo(Coin):
 
     @classmethod
     def is_mtp(cls, header):
-        from electrumx.lib.util import unpack_le_uint32_from, hex_to_bytes
         if isinstance(header, str):
             nVersion, = unpack_le_uint32_from(hex_to_bytes(header[0:4*2]))
         elif isinstance(header, bytes):
@@ -2633,16 +2634,32 @@ class Firo(Coin):
         return nVersion & 0x1000
 
     @classmethod
+    def is_progpow(cls, header):
+        if isinstance(header, str):
+            nTime, = unpack_le_uint32_from(hex_to_bytes(header[68*2:72*2]))
+        elif isinstance(header, bytes):
+            nTime, = unpack_le_uint32_from(header[68:72])
+        else:
+            raise "Cannot handle the passed type"
+        if cls == FiroTestnet:
+            return nTime > 1630069200
+        raise NotImplemented
+
+    @classmethod
     def block_header(cls, block, height):
         sz = cls.BASIC_HEADER_SIZE
-        if cls.is_mtp(block):
+        if cls.is_progpow(block):
+            sz += cls.PROGPOW_HEADER_EXTRA_SIZE
+        elif cls.is_mtp(block):
             sz += cls.MTP_HEADER_EXTRA_SIZE
         return block[:sz]
 
     @classmethod
     def header_hash(cls, header):
         sz = cls.BASIC_HEADER_SIZE
-        if cls.is_mtp(header):
+        if cls.is_progpow(header):
+            sz += cls.PROGPOW_HEADER_EXTRA_SIZE
+        elif cls.is_mtp(header):
             sz += cls.MTP_HEADER_EXTRA_SIZE
         return double_sha256(header[:sz])
 
