@@ -2642,7 +2642,7 @@ class Firo(Coin):
         else:
             raise "Cannot handle the passed type"
         if cls == FiroTestnet:
-            return nTime > 1630069200
+            return nTime >= 1630069200
         raise NotImplemented
 
     @classmethod
