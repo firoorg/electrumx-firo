@@ -2622,6 +2622,7 @@ class Firo(Coin):
     PEERS = [
         'electrum.polispay.com'
     ]
+    PROGPOW_START_TIME = 1635228000
 
     @classmethod
     def is_mtp(cls, header):
@@ -2641,9 +2642,8 @@ class Firo(Coin):
             nTime, = unpack_le_uint32_from(header[68:72])
         else:
             raise "Cannot handle the passed type"
-        if cls == FiroTestnet:
-            return nTime >= 1630069200
-        raise NotImplemented
+
+        return nTime >= cls.PROGPOW_START_TIME
 
     @classmethod
     def block_header(cls, block, height):
@@ -2676,6 +2676,7 @@ class FiroTestnet(Firo):
                    'b234c58c23865291e5dc52cf53f64fca'
     REORG_LIMIT = 8000
     RPC_PORT = 18888
+    PROGPOW_START_TIME = 1630069200
 
 
 class Polis(Coin):
