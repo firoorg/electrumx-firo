@@ -575,9 +575,15 @@ class FiroMtpDaemon(Daemon):
 
     def strip_mtp_data(self, raw_block):
         if self.coin.is_mtp(raw_block) and not self.coin.is_progpow(raw_block):
-            return \
-                raw_block[:self.coin.MTP_HEADER_DATA_START*2] + \
-                raw_block[self.coin.MTP_HEADER_DATA_END*2:]
+            hashRootMTP = raw_block[self.coin.MTP_HEADER_DATA_START*2:self.coin.MTP_STRIPPED_HEADER_DATA_END*2]
+            if not all(v == '0' for v in hashRootMTP):
+                return \
+                    raw_block[:self.coin.MTP_HEADER_DATA_START*2] + \
+                    raw_block[self.coin.MTP_HEADER_DATA_END*2:]
+            else:
+                return \
+                    raw_block[:self.coin.MTP_HEADER_DATA_START*2] + \
+                    raw_block[self.coin.MTP_STRIPPED_HEADER_DATA_END*2:]
         return raw_block
 
     async def raw_blocks(self, hex_hashes):
