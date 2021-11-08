@@ -2111,14 +2111,14 @@ class FiroElectrumX(DashElectrumX):
             'sigma.getlatestcoinids': self.getlatestcoinids,
         })
 
-    async def getanonymityset(self, groupId):
+    async def getanonymityset(self, denom, groupId):
         '''
         Returns the whole anonynity set for denomination in the groupId
 
         denom: denomination in COINs
         groupId: the anonymity group id
         '''
-        result = await self.daemon_request('getanonymityset', [groupId])
+        result = await self.daemon_request('getanonymityset', [denom, groupId])
         if result is not None:
             return result
         return None
