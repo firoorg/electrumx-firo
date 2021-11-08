@@ -2109,6 +2109,7 @@ class FiroElectrumX(DashElectrumX):
             'sigma.getmintmetadata': self.getmintmetadata,
             'sigma.getusedcoinserials': self.getusedcoinserials,
             'sigma.getlatestcoinids': self.getlatestcoinids,
+            'blockchain.getfeerate': self.getfeerate,
         })
 
     async def getanonymityset(self, denom, groupId):
@@ -2152,6 +2153,14 @@ class FiroElectrumX(DashElectrumX):
         groupId: the anonymity group id
         '''
         result = await self.daemon_request('getlatestcoinids')
+        if result is not None:
+            return result
+        return None
+        
+    async def getfeerate(self):
+        '''
+        '''
+        result = await self.daemon_request('getfeerate')
         if result is not None:
             return result
         return None

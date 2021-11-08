@@ -610,3 +610,6 @@ class FiroMtpDaemon(Daemon):
 
     async def getlatestcoinids(self):
         return await self._send_single('getlatestcoinids')
+
+    async def getfeerate(self):
+        return await self._send_single('getfeerate')
