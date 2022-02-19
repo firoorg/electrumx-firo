@@ -1783,11 +1783,10 @@ class FiroElectrumX(DashElectrumX):
     def set_request_handlers(self, ptuple):
         super().set_request_handlers(ptuple)
         self.request_handlers.update({
-            'sigma.getanonymityset': self.getanonymityset,
-            'sigma.getmintmetadata': self.getmintmetadata,
-            'sigma.getusedcoinserials': self.getusedcoinserials,
-            'sigma.getlatestcoinid': self.getlatestcoinid,
-            'sigma.getcoinsforrecovery': self.getcoinsforrecovery,
+            'lelantus.getanonymityset': self.getanonymityset,
+            'lelantus.getmintmetadata': self.getmintmetadata,
+            'lelantus.getusedcoinserials': self.getusedcoinserials,
+            'lelantus.getlatestcoinid': self.getlatestcoinid,
             'blockchain.getfeerate': self.getfeerate,
         })
 
@@ -1815,11 +1814,13 @@ class FiroElectrumX(DashElectrumX):
             return result
         return None
 
-    async def getusedcoinserials(self):
+    async def getusedcoinserials(self, startNumber):
         '''
         Returns the whole set of the used coin serials
+
+        startNumber: Number of elements already existing on user side
         '''
-        result = await self.daemon_request('getusedcoinserials')
+        result = await self.daemon_request('getusedcoinserials', [startNumber])
         if result is not None:
             return result
         return None
@@ -1832,12 +1833,6 @@ class FiroElectrumX(DashElectrumX):
         groupId: the anonymity group id
         '''
         result = await self.daemon_request('getlatestcoinid')
-        if result is not None:
-            return result
-        return None
-        
-    async def getcoinsforrecovery(self, setId):
-        result = await self.daemon_request('getcoinsforrecovery', [setId])
         if result is not None:
             return result
         return None

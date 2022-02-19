@@ -552,14 +552,11 @@ class FiroMtpDaemon(Daemon):
     async def getmintmetadata(self, params):
         return await self._send_single('getmintmetadata', params)
 
-    async def getusedcoinserials(self):
-        return await self._send_single('getusedcoinserials')
+    async def getusedcoinserials(self, params):
+        return await self._send_single('getusedcoinserials', params)
 
     async def getlatestcoinid(self):
         return await self._send_single('getlatestcoinid')
-
-    async def getcoinsforrecovery(self, params):
-        return await self._send_single('getcoinsforrecovery', params)
 
     async def getfeerate(self):
         return await self._send_single('getfeerate')
