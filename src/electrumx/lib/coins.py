@@ -2680,6 +2680,22 @@ class FiroTestnet(Firo):
     PROGPOW_START_TIME = 1630069200
 
 
+class FiroRegtest(Firo):
+    SHORTNAME = "tFIRO"
+    NET = "regtest"
+    XPUB_VERBYTES = bytes.fromhex("043587cf")
+    XPRV_VERBYTES = bytes.fromhex("04358394")
+    P2PKH_VERBYTE = bytes.fromhex("41")
+    P2SH_VERBYTES = (bytes.fromhex("b2"),)
+    WIF_BYTE = bytes.fromhex("ef")
+    GENESIS_HASH = 'a42b98f04cc2916e8adfb5d9db8a2227'\
+                   'c4629bc205748ed2f33180b636ee885b'
+    REORG_LIMIT = 8000
+    RPC_PORT = 18444
+    # INT_MAX from chainparams 2147483647 0xefffffff
+    PROGPOW_START_TIME = 2147483647
+
+
 class Polis(Coin):
     NAME = "Polis"
     SHORTNAME = "POLIS"
