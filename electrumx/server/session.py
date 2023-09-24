@@ -1787,6 +1787,10 @@ class FiroElectrumX(DashElectrumX):
             'lelantus.getmintmetadata': self.getmintmetadata,
             'lelantus.getusedcoinserials': self.getusedcoinserials,
             'lelantus.getlatestcoinid': self.getlatestcoinid,
+            'spark.getsparkanonymityset': self.getsparkanonymityset,
+            'spark.getsparkmintmetadata': self.getsparkmintmetadata,
+            'spark.getusedcoinstags': self.getusedcoinstags,
+            'spark.getsparklatestcoinid': self.getsparklatestcoinid,
             'blockchain.getfeerate': self.getfeerate,
         })
 
@@ -1833,6 +1837,49 @@ class FiroElectrumX(DashElectrumX):
         groupId: the anonymity group id
         '''
         result = await self.daemon_request('getlatestcoinid')
+        if result is not None:
+            return result
+        return None
+
+    async def getsparkanonymityset(self, coinGroupId, startBlockHash):
+        '''
+        Returns the whole anonymity set for the groupId
+
+        coinGroupId: the anonymity group id
+        startBlockHash: block after that we need elements
+        '''
+        result = await self.daemon_request('getsparkanonymityset', [coinGroupId, startBlockHash])
+        if result is not None:
+            return result
+        return None
+
+    async def getsparkmintmetadata(self, mints):
+        '''
+        Returns the block height and groupId of spark mint
+
+        pubcoin: coin hash
+        '''
+        result = await self.daemon_request('getsparkmintmetadata', [mints])
+        if result is not None:
+            return result
+        return None
+
+    async def getusedcoinstags(self, startNumber):
+        '''
+        Returns the whole set of the used mint tags
+
+        startNumber: Number of elements already existing on user side
+        '''
+        result = await self.daemon_request('getusedcoinstags', [startNumber])
+        if result is not None:
+            return result
+        return None
+
+    async def getsparklatestcoinid(self):
+        '''
+        Returns the last existing coin id
+        '''
+        result = await self.daemon_request('getsparklatestcoinid')
         if result is not None:
             return result
         return None
