@@ -567,8 +567,8 @@ class FiroMtpDaemon(Daemon):
     async def getusedcoinstags(self, params):
         return await self._send_single('getusedcoinstags', params)
 
-    async def getsparklatestcoinid(self, params):
-        return await self._send_single('getsparklatestcoinid', params)
+    async def getsparklatestcoinid(self):
+        return await self._send_single('getsparklatestcoinid')
 
 
 async def getfeerate(self):
