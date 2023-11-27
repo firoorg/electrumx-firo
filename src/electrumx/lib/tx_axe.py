@@ -507,8 +507,23 @@ class FiroLelantusTx(namedtuple("FiroLelantusTx", "lelantusData")):
         deser.cursor += extra_payload_lengh
         return tx
 
+class FiroSparkSpend(namedtuple("FiroSparkSpend", "sparkData")):
+    def serialize(self):
+        res = (
+            self.sparkData
+        )
+        return res
+
+    @classmethod
+    def read_tx_extra(cls, deser, extra_payload_lengh):
+        tx = FiroSparkSpend(deser.binary[deser.cursor:deser.cursor + extra_payload_lengh])
+        deser.cursor += extra_payload_lengh
+        return tx
+
 class DeserializerFiro(DeserializerDash):
     LELANTUS_TX = 8
+    SPARK_SPEND = 9
+
     SPEC_TX_HANDLERS = {
         DeserializerDash.PRO_REG_TX: AxeProRegTx,
         DeserializerDash.PRO_UP_SERV_TX: AxeProUpServTx,
@@ -516,7 +531,8 @@ class DeserializerFiro(DeserializerDash):
         DeserializerDash.PRO_UP_REV_TX: AxeProUpRevTx,
         DeserializerDash.CB_TX: AxeCbTx,
 
-        LELANTUS_TX: FiroLelantusTx
+        LELANTUS_TX: FiroLelantusTx,
+        SPARK_SPEND: FiroSparkSpend
     }
 
     def read_tx(self):

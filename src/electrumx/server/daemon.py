@@ -617,5 +617,18 @@ class FiroMtpDaemon(Daemon):
     async def getlatestcoinid(self):
         return await self._send_single('getlatestcoinid')
 
-    async def getfeerate(self):
+    async def getsparkanonymityset(self, params):
+        return await self._send_single('getsparkanonymityset', params)
+
+    async def getsparkmintmetadata(self, params):
+        return await self._send_single('getsparkmintmetadata', params)
+
+    async def getusedcoinstags(self, params):
+        return await self._send_single('getusedcoinstags', params)
+
+    async def getsparklatestcoinid(self):
+        return await self._send_single('getsparklatestcoinid')
+
+
+async def getfeerate(self):
         return await self._send_single('getfeerate')
