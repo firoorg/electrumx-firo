@@ -571,5 +571,9 @@ class FiroMtpDaemon(Daemon):
         return await self._send_single('getsparklatestcoinid')
 
 
-async def getfeerate(self):
-        return await self._send_single('getfeerate')
+    async def getfeerate(self):
+            return await self._send_single('getfeerate')
+
+
+    async def checkifmncollateral(self, params):
+        return await self._send_single('checkifmncollateral', params)
