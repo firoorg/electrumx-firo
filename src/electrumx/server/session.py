@@ -2114,6 +2114,7 @@ class FiroElectrumX(DashElectrumX):
             'spark.getusedcoinstags': self.getusedcoinstags,
             'spark.getsparklatestcoinid': self.getsparklatestcoinid,
             'blockchain.getfeerate': self.getfeerate,
+            'blockchain.checkifmncollateral': self.checkifmncollateral
         })
 
     async def getanonymityset(self, denom, groupId):
@@ -2210,6 +2211,14 @@ class FiroElectrumX(DashElectrumX):
         '''
         '''
         result = await self.daemon_request('getfeerate')
+        if result is not None:
+            return result
+        return None
+
+    async def checkifmncollateral(self, txid, index):
+        '''
+        '''
+        result = await self.daemon_request('checkifmncollateral', [txid, index])
         if result is not None:
             return result
         return None
