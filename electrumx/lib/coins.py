@@ -190,7 +190,7 @@ class Coin:
     def hash160_to_P2PKH_script(cls, hash160):
         return ScriptPubKey.P2PKH_script(hash160)
 
-        @classmethod
+    @classmethod
     def hash160_to_P2EPKH_script(cls, hash160):
         return ScriptPubKey.P2EPKH_script(hash160)
 
