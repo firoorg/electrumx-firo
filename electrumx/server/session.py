@@ -1790,6 +1790,7 @@ class FiroElectrumX(DashElectrumX):
             'spark.getsparkanonymityset': self.getsparkanonymityset,
             'spark.getsparkmintmetadata': self.getsparkmintmetadata,
             'spark.getusedcoinstags': self.getusedcoinstags,
+            'spark.getusedcoinstagstxhashes': self.getusedcoinstagstxhashes,
             'spark.getsparklatestcoinid': self.getsparklatestcoinid,
             'blockchain.getfeerate': self.getfeerate,
             'spark.getmempooltxids': self.getmempooltxids,
@@ -1874,6 +1875,17 @@ class FiroElectrumX(DashElectrumX):
         startNumber: Number of elements already existing on user side
         '''
         result = await self.daemon_request('getusedcoinstags', [startNumber])
+        if result is not None:
+            return result
+        return None
+
+    async def getusedcoinstagstxhashes(self, startNumber):
+        '''
+        Returns the whole set of the used mint tags
+
+        startNumber: Number of elements already existing on user side
+        '''
+        result = await self.daemon_request('getusedcoinstagstxhashes', [startNumber])
         if result is not None:
             return result
         return None
