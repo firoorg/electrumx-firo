@@ -570,7 +570,6 @@ class FiroMtpDaemon(Daemon):
     async def getsparklatestcoinid(self):
         return await self._send_single('getsparklatestcoinid')
 
-
     async def getmempooltxids(self):
         return await self._send_single('getmempooltxids')
 
@@ -580,7 +579,6 @@ class FiroMtpDaemon(Daemon):
 
     async def getfeerate(self):
             return await self._send_single('getfeerate')
-
 
     async def checkifmncollateral(self, params):
         return await self._send_single('checkifmncollateral', params)
