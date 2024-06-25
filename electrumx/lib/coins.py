@@ -85,6 +85,7 @@ class Coin:
     HEADER_UNPACK = struct.Struct('< I 32s 32s I I I').unpack_from
     MEMPOOL_HISTOGRAM_REFRESH_SECS = 500
     P2PKH_VERBYTE = bytes.fromhex("00")
+    P2EPKH_VERBYTE = bytes.fromhex("00")
     P2SH_VERBYTES = (bytes.fromhex("05"),)
     XPUB_VERBYTES = bytes('????', 'utf-8')
     XPRV_VERBYTES = bytes('????', 'utf-8')
@@ -190,6 +191,10 @@ class Coin:
         return ScriptPubKey.P2PKH_script(hash160)
 
     @classmethod
+    def hash160_to_P2EPKH_script(cls, hash160):
+        return ScriptPubKey.P2EPKH_script(hash160)
+
+    @classmethod
     def hash160_to_P2PKH_hashX(cls, hash160):
         return cls.hashX_from_script(cls.hash160_to_P2PKH_script(hash160))
 
@@ -209,6 +214,8 @@ class Coin:
 
         if verbyte == cls.P2PKH_VERBYTE:
             return cls.hash160_to_P2PKH_script(hash160)
+        if verbyte == cls.P2EPKH_VERBYTE:
+            return cls.hash160_to_P2EPKH_script(hash160)
         if verbyte in cls.P2SH_VERBYTES:
             return ScriptPubKey.P2SH_script(hash160)
 
@@ -2506,6 +2513,7 @@ class Firo(Coin):
     SHORTNAME = "FIRO"
     NET = "mainnet"
     P2PKH_VERBYTE = bytes.fromhex("52")
+    P2EPKH_VERBYTE = bytes.fromhex("b9")
     P2SH_VERBYTES = (bytes.fromhex("07"),)
     WIF_BYTE = bytes.fromhex("d2")
     GENESIS_HASH = ('4381deb85b1b2c9843c222944b616d99'
@@ -2578,6 +2586,7 @@ class FiroTestnet(Firo):
     XPUB_VERBYTES = bytes.fromhex("043587cf")
     XPRV_VERBYTES = bytes.fromhex("04358394")
     P2PKH_VERBYTE = bytes.fromhex("41")
+    P2EPKH_VERBYTE = bytes.fromhex("b9")
     P2SH_VERBYTES = (bytes.fromhex("b2"),)
     WIF_BYTE = bytes.fromhex("b9")
     GENESIS_HASH = 'aa22adcc12becaf436027ffe62a8fb21' \
@@ -2593,6 +2602,7 @@ class FiroRegtest(Firo):
     XPUB_VERBYTES = bytes.fromhex("043587cf")
     XPRV_VERBYTES = bytes.fromhex("04358394")
     P2PKH_VERBYTE = bytes.fromhex("41")
+    P2EPKH_VERBYTE = bytes.fromhex("b9")
     P2SH_VERBYTES = (bytes.fromhex("b2"),)
     WIF_BYTE = bytes.fromhex("ef")
     GENESIS_HASH = 'a42b98f04cc2916e8adfb5d9db8a2227'\
