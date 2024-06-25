@@ -573,11 +573,11 @@ class FiroMtpDaemon(Daemon):
     async def getsparklatestcoinid(self):
         return await self._send_single('getsparklatestcoinid')
 
-    async def getmempooltxids(self):
-        return await self._send_single('getmempooltxids')
+    async def getmempoolsparktxids(self):
+        return await self._send_single('getmempoolsparktxids')
 
-    async def getmempooltxs(self, params):
-        return await self._send_single('getmempooltxs', params)
+    async def getmempoolsparktxs(self, params):
+        return await self._send_single('getmempoolsparktxs', params)
 
 
     async def getfeerate(self):
