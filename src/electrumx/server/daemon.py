@@ -626,13 +626,21 @@ class FiroMtpDaemon(Daemon):
     async def getusedcoinstags(self, params):
         return await self._send_single('getusedcoinstags', params)
 
+    async def getusedcoinstagstxhashes(self, params):
+        return await self._send_single('getusedcoinstagstxhashes', params)
+
     async def getsparklatestcoinid(self):
         return await self._send_single('getsparklatestcoinid')
+
+    async def getmempoolsparktxids(self):
+        return await self._send_single('getmempoolsparktxids')
+
+    async def getmempoolsparktxs(self, params):
+        return await self._send_single('getmempoolsparktxs', params)
 
 
     async def getfeerate(self):
             return await self._send_single('getfeerate')
-
 
     async def checkifmncollateral(self, params):
         return await self._send_single('checkifmncollateral', params)

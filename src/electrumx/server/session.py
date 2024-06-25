@@ -2112,8 +2112,11 @@ class FiroElectrumX(DashElectrumX):
             'spark.getsparkanonymityset': self.getsparkanonymityset,
             'spark.getsparkmintmetadata': self.getsparkmintmetadata,
             'spark.getusedcoinstags': self.getusedcoinstags,
+            'spark.getusedcoinstagstxhashes': self.getusedcoinstagstxhashes,
             'spark.getsparklatestcoinid': self.getsparklatestcoinid,
             'blockchain.getfeerate': self.getfeerate,
+            'spark.getmempoolsparktxids': self.getmempoolsparktxids,
+            'spark.getmempoolsparktxs': self.getmempoolsparktxs,
             'blockchain.checkifmncollateral': self.checkifmncollateral
         })
 
@@ -2198,11 +2201,42 @@ class FiroElectrumX(DashElectrumX):
             return result
         return None
 
+    async def getusedcoinstagstxhashes(self, startNumber):
+        '''
+        Returns the whole set of the used mint tags
+
+        startNumber: Number of elements already existing on user side
+        '''
+        result = await self.daemon_request('getusedcoinstagstxhashes', [startNumber])
+        if result is not None:
+            return result
+        return None
+
     async def getsparklatestcoinid(self):
         '''
         Returns the last existing coin id
         '''
         result = await self.daemon_request('getsparklatestcoinid')
+        if result is not None:
+            return result
+        return None
+
+    async def getmempoolsparktxs(self, txids):
+        '''
+        Returns the  set of spark tx data
+
+        txids: Tx ids for which we ask data
+        '''
+        result = await self.daemon_request('getmempoolsparktxs', [txids])
+        if result is not None:
+            return result
+        return None
+
+    async def getmempoolsparktxids(self):
+        '''
+        Returns the lits of tx ids existing int the mempool
+        '''
+        result = await self.daemon_request('getmempoolsparktxids')
         if result is not None:
             return result
         return None
