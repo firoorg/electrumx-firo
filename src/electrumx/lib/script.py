@@ -59,7 +59,8 @@ OpCodes = Enumeration("Opcodes", [
     "OP_CODESEPARATOR", "OP_CHECKSIG", "OP_CHECKSIGVERIFY", "OP_CHECKMULTISIG",
     "OP_CHECKMULTISIGVERIFY",
     "OP_NOP1",
-    "OP_CHECKLOCKTIMEVERIFY", "OP_CHECKSEQUENCEVERIFY"
+    "OP_CHECKLOCKTIMEVERIFY", "OP_CHECKSEQUENCEVERIFY",
+    ("OP_EXCHANGEADDR", 224)
 ])
 
 
@@ -70,6 +71,7 @@ assert OpCodes.OP_EQUAL == 0x87
 assert OpCodes.OP_EQUALVERIFY == 0x88
 assert OpCodes.OP_CHECKSIG == 0xac
 assert OpCodes.OP_CHECKMULTISIG == 0xae
+assert OpCodes.OP_EXCHANGEADDR == 0xe0
 
 
 def is_unspendable_legacy(script):
@@ -114,6 +116,12 @@ class ScriptPubKey:
     @classmethod
     def P2PKH_script(cls, hash160):
         return (bytes((OpCodes.OP_DUP, OpCodes.OP_HASH160))
+                + Script.push_data(hash160)
+                + bytes((OpCodes.OP_EQUALVERIFY, OpCodes.OP_CHECKSIG)))
+
+    @classmethod
+    def P2EPKH_script(cls, hash160):
+        return (bytes((OpCodes.OP_EXCHANGEADDR, OpCodes.OP_DUP, OpCodes.OP_HASH160))
                 + Script.push_data(hash160)
                 + bytes((OpCodes.OP_EQUALVERIFY, OpCodes.OP_CHECKSIG)))
 
