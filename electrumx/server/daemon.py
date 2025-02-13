@@ -561,6 +561,11 @@ class FiroMtpDaemon(Daemon):
     async def getsparkanonymityset(self, params):
         return await self._send_single('getsparkanonymityset', params)
 
+    async def getsparkanonymitysetmeta(self, params):
+        return await self._send_single('getsparkanonymitysetmeta', params)
+    async def getsparkanonymitysetsector(self, params):
+        return await self._send_single('getsparkanonymitysetsector', params)
+
     async def getsparkmintmetadata(self, params):
         return await self._send_single('getsparkmintmetadata', params)
 

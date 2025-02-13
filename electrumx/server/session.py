@@ -1788,6 +1788,8 @@ class FiroElectrumX(DashElectrumX):
             'lelantus.getusedcoinserials': self.getusedcoinserials,
             'lelantus.getlatestcoinid': self.getlatestcoinid,
             'spark.getsparkanonymityset': self.getsparkanonymityset,
+            'spark.getsparkanonymitysetmeta': self.getsparkanonymitysetmeta,
+            'spark.getsparkanonymitysetsector': self.getsparkanonymitysetsector,
             'spark.getsparkmintmetadata': self.getsparkmintmetadata,
             'spark.getusedcoinstags': self.getusedcoinstags,
             'spark.getusedcoinstagstxhashes': self.getusedcoinstagstxhashes,
@@ -1853,6 +1855,32 @@ class FiroElectrumX(DashElectrumX):
         startBlockHash: block after that we need elements
         '''
         result = await self.daemon_request('getsparkanonymityset', [coinGroupId, startBlockHash])
+        if result is not None:
+            return result
+        return None
+
+    async def getsparkanonymitysetmeta(self, coinGroupId):
+        '''
+        Returns the set of metadata for each anon set
+
+        coinGroupId: the anonymity group id
+        '''
+        result = await self.daemon_request('getsparkanonymitysetmeta', [coinGroupId])
+        if result is not None:
+            return result
+        return None
+
+    async def getsparkanonymitysetsector(self, coinGroupId, latestBlock, startIndex, endIndex):
+        '''
+        Returns the setor of anon set based on specified datd
+
+        coinGroupId: the anonymity group id
+        latestBlock: latest block hash for anon set
+        startIndex: start index for the sector
+        endIndex: end index for the sector
+
+        '''
+        result = await self.daemon_request('getsparkanonymitysetsector', [coinGroupId, latestBlock, startIndex, endIndex])
         if result is not None:
             return result
         return None
