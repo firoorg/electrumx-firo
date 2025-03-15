@@ -584,6 +584,11 @@ class FiroMtpDaemon(Daemon):
     async def getmempoolsparktxs(self, params):
         return await self._send_single('getmempoolsparktxs', params)
 
+    async def getsparknames(self):
+        return await self._send_single('getsparknames')
+
+    async def getsparknamedata(self, params):
+        return await self._send_single('getsparknamedata', params)
 
     async def getfeerate(self):
             return await self._send_single('getfeerate')

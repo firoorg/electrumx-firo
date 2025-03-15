@@ -1797,6 +1797,9 @@ class FiroElectrumX(DashElectrumX):
             'blockchain.getfeerate': self.getfeerate,
             'spark.getmempoolsparktxids': self.getmempoolsparktxids,
             'spark.getmempoolsparktxs': self.getmempoolsparktxs,
+            'spark.getsparknames': self.getsparknames,
+            'spark.getsparknamedata': self.getsparknamedata,
+
             'blockchain.checkifmncollateral': self.checkifmncollateral
         })
 
@@ -1943,6 +1946,24 @@ class FiroElectrumX(DashElectrumX):
         Returns the lits of tx ids existing int the mempool
         '''
         result = await self.daemon_request('getmempoolsparktxids')
+        if result is not None:
+            return result
+        return None
+    async def getsparknames(self):
+        '''
+        Returns the list of all spark names
+        '''
+        result = await self.daemon_request('getsparknames')
+        if result is not None:
+            return result
+        return None
+
+    async def getsparknamedata(self, sparkname):
+        '''
+        Returns the  netadata of specified spark name
+        sparkname: string
+        '''
+        result = await self.daemon_request('getsparknamedata', [sparkname])
         if result is not None:
             return result
         return None
