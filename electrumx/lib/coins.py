@@ -2536,7 +2536,10 @@ class Firo(Coin):
     DAEMON = daemon.FiroMtpDaemon
     DESERIALIZER = lib_tx_dash.DeserializerFiro
     PEERS = [
-        'electrum.polispay.com'
+        'electrumx01.firo.org s t',
+        'electrumx02.firo.org s t',
+        'electrumx03.firo.org s t',
+        'electrumx.firo.org s t',
     ]
     PROGPOW_START_TIME = 1635228000
 
