@@ -29,7 +29,7 @@
 from dataclasses import dataclass
 from typing import Any
 
-from electrumx.lib.tx import Deserializer, Tx, ZERO, MINUS_1
+from electrumx.lib.tx import Deserializer, Tx
 from electrumx.lib.util import (pack_le_uint16, pack_le_int32, pack_le_uint32,
                                 pack_le_int64, pack_varint, pack_varbytes,
                                 pack_be_uint16)
@@ -114,19 +114,19 @@ class AxeProRegTx:
     @classmethod
     def read_tx_extra(cls, deser, extra_payload_lengh=None):
         return AxeProRegTx(
-            deser._read_le_uint16(),                    # version
-            deser._read_le_uint16(),                    # type
-            deser._read_le_uint16(),                    # mode
-            deser._read_outpoint(),                     # collateralOutpoint
-            deser._read_nbytes(16),                     # ipAddress
-            deser._read_be_uint16(),                    # port
-            deser._read_nbytes(20),                     # KeyIdOwner
-            deser._read_nbytes(48),                     # PubKeyOperator
-            deser._read_nbytes(20),                     # KeyIdVoting
-            deser._read_le_uint16(),                    # operatorReward
-            deser._read_varbytes(),                     # scriptPayout
-            deser._read_nbytes(32),                     # inputsHash
-            deser._read_varbytes()                      # payloadSig
+            version=deser._read_le_uint16(),
+            type=deser._read_le_uint16(),
+            mode=deser._read_le_uint16(),
+            collateralOutpoint=deser._read_outpoint(),
+            ipAddress=deser._read_nbytes(16),
+            port=deser._read_be_uint16(),
+            KeyIdOwner=deser._read_nbytes(20),
+            PubKeyOperator=deser._read_nbytes(48),
+            KeyIdVoting=deser._read_nbytes(20),
+            operatorReward=deser._read_le_uint16(),
+            scriptPayout=deser._read_varbytes(),
+            inputsHash=deser._read_nbytes(32),
+            payloadSig=deser._read_varbytes()
         )
 
 
@@ -159,13 +159,13 @@ class AxeProUpServTx:
     @classmethod
     def read_tx_extra(cls, deser, extra_payload_lengh=None):
         return AxeProUpServTx(
-            deser._read_le_uint16(),                    # version
-            deser._read_nbytes(32),                     # proTxHash
-            deser._read_nbytes(16),                     # ipAddress
-            deser._read_be_uint16(),                    # port
-            deser._read_varbytes(),                     # scriptOperatorPayout
-            deser._read_nbytes(32),                     # inputsHash
-            deser._read_nbytes(96)                      # payloadSig
+            version=deser._read_le_uint16(),
+            proTxHash=deser._read_nbytes(32),
+            ipAddress=deser._read_nbytes(16),
+            port=deser._read_be_uint16(),
+            scriptOperatorPayout=deser._read_varbytes(),
+            inputsHash=deser._read_nbytes(32),
+            payloadSig=deser._read_nbytes(96)
         )
 
 
@@ -200,14 +200,14 @@ class AxeProUpRegTx:
     @classmethod
     def read_tx_extra(cls, deser, extra_payload_lengh=None):
         return AxeProUpRegTx(
-            deser._read_le_uint16(),                    # version
-            deser._read_nbytes(32),                     # proTxHash
-            deser._read_le_uint16(),                    # mode
-            deser._read_nbytes(48),                     # PubKeyOperator
-            deser._read_nbytes(20),                     # KeyIdVoting
-            deser._read_varbytes(),                     # scriptPayout
-            deser._read_nbytes(32),                     # inputsHash
-            deser._read_varbytes()                      # payloadSig
+            version=deser._read_le_uint16(),
+            proTxHash=deser._read_nbytes(32),
+            mode=deser._read_le_uint16(),
+            PubKeyOperator=deser._read_nbytes(48),
+            KeyIdVoting=deser._read_nbytes(20),
+            scriptPayout=deser._read_varbytes(),
+            inputsHash=deser._read_nbytes(32),
+            payloadSig=deser._read_varbytes()
         )
 
 
@@ -235,11 +235,11 @@ class AxeProUpRevTx:
     @classmethod
     def read_tx_extra(cls, deser, extra_payload_lengh=None):
         return AxeProUpRevTx(
-            deser._read_le_uint16(),                    # version
-            deser._read_nbytes(32),                     # proTxHash
-            deser._read_le_uint16(),                    # reason
-            deser._read_nbytes(32),                     # inputsHash
-            deser._read_nbytes(96)                      # payloadSig
+            version=deser._read_le_uint16(),
+            proTxHash=deser._read_nbytes(32),
+            reason=deser._read_le_uint16(),
+            inputsHash=deser._read_nbytes(32),
+            payloadSig=deser._read_nbytes(96)
         )
 
 
@@ -264,7 +264,7 @@ class AxeCbTx:
         return res
 
     @classmethod
-    def read_tx_extra(cls, deser, extra_payload_lengh):
+    def read_tx_extra(cls, deser, extra_payload_lengh=None):
         version = deser._read_le_uint16()
         height = deser._read_le_uint32()
         merkleRootMNList = deser._read_nbytes(32)
@@ -300,10 +300,10 @@ class AxeSubTxRegister:
     @classmethod
     def read_tx_extra(cls, deser, extra_payload_lengh=None):
         return AxeSubTxRegister(
-            deser._read_le_uint16(),                    # version
-            deser._read_varbytes(),                     # userName
-            deser._read_nbytes(48),                     # pubKey
-            deser._read_nbytes(96)                      # payloadSig
+            version=deser._read_le_uint16(),
+            userName=deser._read_varbytes(),
+            pubKey=deser._read_nbytes(48),
+            payloadSig=deser._read_nbytes(96)
         )
 
 
@@ -323,8 +323,8 @@ class AxeSubTxTopup:
     @classmethod
     def read_tx_extra(cls, deser, extra_payload_lengh=None):
         return AxeSubTxTopup(
-            deser._read_le_uint16(),                    # version
-            deser._read_nbytes(32)                      # regTxHash
+            version=deser._read_le_uint16(),
+            regTxHash=deser._read_nbytes(32)
         )
 
 
@@ -355,12 +355,12 @@ class AxeSubTxResetKey:
     @classmethod
     def read_tx_extra(cls, deser, extra_payload_lengh=None):
         return AxeSubTxResetKey(
-            deser._read_le_uint16(),                    # version
-            deser._read_nbytes(32),                     # regTxHash
-            deser._read_nbytes(32),                     # hashPrevSubTx
-            deser._read_le_int64(),                     # creditFee
-            deser._read_nbytes(48),                     # newPubKey
-            deser._read_nbytes(96)                      # payloadSig
+            version=deser._read_le_uint16(),
+            regTxHash=deser._read_nbytes(32),
+            hashPrevSubTx=deser._read_nbytes(32),
+            creditFee=deser._read_le_int64(),
+            newPubKey=deser._read_nbytes(48),
+            payloadSig=deser._read_nbytes(96)
         )
 
 
@@ -388,11 +388,11 @@ class AxeSubTxCloseAccount:
     @classmethod
     def read_tx_extra(cls, deser, extra_payload_lengh=None):
         return AxeSubTxCloseAccount(
-            deser._read_le_uint16(),                    # version
-            deser._read_nbytes(32),                     # regTxHash
-            deser._read_nbytes(32),                     # hashPrevSubTx
-            deser._read_le_int64(),                     # creditFee
-            deser._read_nbytes(96)                      # payloadSig
+            version=deser._read_le_uint16(),
+            regTxHash=deser._read_nbytes(32),
+            hashPrevSubTx=deser._read_nbytes(32),
+            creditFee=deser._read_le_int64(),
+            payloadSig=deser._read_nbytes(96)
         )
 
 
@@ -487,102 +487,3 @@ class DeserializerAxe(Deserializer):
             wtxid=txid,
         )
         return tx
-
-# Firo
-class TxInputFiro(namedtuple("TxInput", "prev_hash prev_idx script sequence")):
-    def is_generation(self):
-        '''Test if an input is generation/coinbase like'''
-        return self.prev_hash == ZERO #Treat Zerocoin and Sigma inputs as coinbase
-
-class FiroLelantusTx(namedtuple("FiroLelantusTx", "lelantusData")):
-    def serialize(self):
-        res = (
-            self.lelantusData
-        )
-        return res
-
-    @classmethod
-    def read_tx_extra(cls, deser, extra_payload_lengh):
-        tx = FiroLelantusTx(deser.binary[deser.cursor:deser.cursor + extra_payload_lengh])
-        deser.cursor += extra_payload_lengh
-        return tx
-
-class FiroSparkSpend(namedtuple("FiroSparkSpend", "sparkData")):
-    def serialize(self):
-        res = (
-            self.sparkData
-        )
-        return res
-
-    @classmethod
-    def read_tx_extra(cls, deser, extra_payload_lengh):
-        tx = FiroSparkSpend(deser.binary[deser.cursor:deser.cursor + extra_payload_lengh])
-        deser.cursor += extra_payload_lengh
-        return tx
-
-class DeserializerFiro(DeserializerDash):
-    LELANTUS_TX = 8
-    SPARK_SPEND = 9
-
-    SPEC_TX_HANDLERS = {
-        DeserializerDash.PRO_REG_TX: AxeProRegTx,
-        DeserializerDash.PRO_UP_SERV_TX: AxeProUpServTx,
-        DeserializerDash.PRO_UP_REG_TX: AxeProUpRegTx,
-        DeserializerDash.PRO_UP_REV_TX: AxeProUpRevTx,
-        DeserializerDash.CB_TX: AxeCbTx,
-
-        LELANTUS_TX: FiroLelantusTx,
-        SPARK_SPEND: FiroSparkSpend
-    }
-
-    def read_tx(self):
-        header = self._read_le_uint32()
-        tx_type = header >> 16  # DIP2 tx type
-        if tx_type:
-            version = header & 0x0000ffff
-        else:
-            version = header
-
-        if tx_type and version < 3:
-            version = header
-            tx_type = 0
-
-        inputs = self._read_inputs()
-        outputs = self._read_outputs()
-        locktime = self._read_le_uint32()
-        if tx_type:
-            extra_payload_size = self._read_varint()
-            end = self.cursor + extra_payload_size
-            spec_tx_class = DeserializerFiro.SPEC_TX_HANDLERS.get(tx_type)
-            if spec_tx_class:
-                read_method = getattr(spec_tx_class, 'read_tx_extra', None)
-                extra_payload = read_method(self, extra_payload_size)
-                assert isinstance(extra_payload, spec_tx_class)
-            else:
-                extra_payload = self._read_nbytes(extra_payload_size)
-            assert self.cursor == end
-        else:
-            extra_payload = b''
-        tx = DashTx(version, inputs, outputs, locktime, tx_type, extra_payload)
-        return tx
-
-    def _read_input(self):
-        tx_input = TxInputFiro(
-            self._read_nbytes(32),   # prev_hash
-            self._read_le_uint32(),  # prev_idx
-            self._read_varbytes(),   # script
-            self._read_le_uint32()   # sequence
-        )
-
-        if tx_input.prev_idx == MINUS_1 and tx_input.prev_hash == ZERO:
-            return tx_input
-
-        if tx_input.script and tx_input.script[0] == 0xc4:  # This is a Sigma spend - mimic a generation tx
-            return TxInputFiro(
-                ZERO,
-                tx_input.prev_idx,
-                tx_input.script,
-                tx_input.sequence
-            )
-
-        return tx_input

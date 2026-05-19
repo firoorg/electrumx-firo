@@ -1336,27 +1336,6 @@ class DeserializerECCoin(Deserializer):
         return tx
 
 
-class DeserializerZcoin(Deserializer):
-    def _read_input(self):
-        tx_input = TxInput(
-            prev_hash=self._read_nbytes(32),
-            prev_idx=self._read_le_uint32(),
-            script=self._read_varbytes(),
-            sequence=self._read_le_uint32(),
-        )
-
-        if tx_input.prev_idx == MINUS_1 and tx_input.prev_hash == ZERO:
-            return tx_input
-
-        if tx_input.script[0] == 0xc4:  # This is a Sigma spend - mimic a generation tx
-            return TxInput(
-                prev_hash=ZERO,
-                prev_idx=MINUS_1,
-                script=tx_input.script,
-                sequence=tx_input.sequence
-            )
-
-        return tx_input
 class DeserializerXaya(DeserializerSegWit, DeserializerAuxPow):
     """Deserializer class for the Xaya network
 

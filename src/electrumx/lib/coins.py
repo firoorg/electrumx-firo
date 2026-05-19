@@ -45,7 +45,7 @@ from electrumx.lib.script import (_match_ops, Script, ScriptError,
                                   ScriptPubKey, OpCodes)
 import electrumx.lib.tx as lib_tx
 from electrumx.lib.tx import Tx
-import electrumx.lib.tx_dash as lib_tx_dash
+import electrumx.lib.tx_firo as lib_tx_firo
 import electrumx.lib.tx_axe as lib_tx_axe
 import electrumx.server.block_processor as block_proc
 import electrumx.server.daemon as daemon
@@ -1336,7 +1336,7 @@ class Dash(Coin):
     ]
     SESSIONCLS = DashElectrumX
     DAEMON = daemon.DashDaemon
-    DESERIALIZER = lib_tx_dash.DeserializerDash
+    DESERIALIZER = lib_tx_firo.DeserializerFiro
 
     @classmethod
     def header_hash(cls, header):
@@ -2627,7 +2627,7 @@ class Firo(Coin):
     STATIC_BLOCK_HEADERS = False
     SESSIONCLS = FiroElectrumX
     DAEMON = daemon.FiroMtpDaemon
-    DESERIALIZER = lib_tx_dash.DeserializerFiro
+    DESERIALIZER = lib_tx_firo.DeserializerFiro
     PEERS = [
         'electrum.polispay.com'
     ]

@@ -1,6 +1,6 @@
 import pytest
 
-import electrumx.lib.tx_dash as lib_tx_dash
+import electrumx.lib.tx_firo as lib_tx_firo
 
 
 bfh = bytes.fromhex
@@ -179,9 +179,9 @@ WRONG_SPEC_TX = (  # Tx version < 3
     '4d22769c3a4f90b2dcd0de88ac00000000')
 
 
-def test_dash_v2_tx():
+def test_firo_v2_tx():
     test = bfh(V2_TX)
-    deser = lib_tx_dash.DeserializerDash(test)
+    deser = lib_tx_firo.DeserializerFiro(test)
     tx = deser.read_tx()
     assert tx.version == 2
     assert tx.tx_type == 0
@@ -190,9 +190,9 @@ def test_dash_v2_tx():
     assert ser == test
 
 
-def test_dash_tx_cb_tx():
+def test_firo_tx_cb_tx():
     test = bfh(CB_TX)
-    deser = lib_tx_dash.DeserializerDash(test)
+    deser = lib_tx_firo.DeserializerFiro(test)
     tx = deser.read_tx()
     assert tx.version == 3
     assert tx.tx_type == 5
@@ -206,9 +206,9 @@ def test_dash_tx_cb_tx():
     assert ser == test
 
 
-def test_dash_tx_cb_tx_v2():
+def test_firo_tx_cb_tx_v2():
     test = bfh(CB_TX_V2)
-    deser = lib_tx_dash.DeserializerDash(test)
+    deser = lib_tx_firo.DeserializerFiro(test)
     tx = deser.read_tx()
     assert tx.version == 3
     assert tx.tx_type == 5
@@ -225,9 +225,9 @@ def test_dash_tx_cb_tx_v2():
     assert ser == test
 
 
-def test_dash_tx_cb_tx_v3():
+def test_firo_tx_cb_tx_v3():
     test = bfh(CB_TX_V3)
-    deser = lib_tx_dash.DeserializerDash(test)
+    deser = lib_tx_firo.DeserializerFiro(test)
     tx = deser.read_tx()
     assert tx.version == 3
     assert tx.tx_type == 5
@@ -251,9 +251,9 @@ def test_dash_tx_cb_tx_v3():
     assert ser == test
 
 
-def test_dash_tx_pro_reg_tx():
+def test_firo_tx_pro_reg_tx():
     test = bfh(PRO_REG_TX)
-    deser = lib_tx_dash.DeserializerDash(test)
+    deser = lib_tx_firo.DeserializerFiro(test)
     tx = deser.read_tx()
     assert tx.version == 3
     assert tx.tx_type == 1
@@ -291,9 +291,9 @@ def test_dash_tx_pro_reg_tx():
     ser = tx.serialize()
     assert ser == test
 
-def test_dash_tx_pro_reg_tx_v2():
+def test_firo_tx_pro_reg_tx_v2():
     test = bfh(PRO_REG_TX_V2)
-    deser = lib_tx_dash.DeserializerDash(test)
+    deser = lib_tx_firo.DeserializerFiro(test)
     tx = deser.read_tx()
     assert tx.version == 3
     assert tx.tx_type == 1
@@ -337,9 +337,9 @@ def test_dash_tx_pro_reg_tx_v2():
     assert ser == test
 
 
-def test_dash_tx_pro_up_serv_tx():
+def test_firo_tx_pro_up_serv_tx():
     test = bfh(PRO_UP_SERV_TX)
-    deser = lib_tx_dash.DeserializerDash(test)
+    deser = lib_tx_firo.DeserializerFiro(test)
     tx = deser.read_tx()
     assert tx.version == 3
     assert tx.tx_type == 2
@@ -367,9 +367,9 @@ def test_dash_tx_pro_up_serv_tx():
     assert ser == test
 
 
-def test_dash_tx_pro_up_serv_tx_v2():
+def test_firo_tx_pro_up_serv_tx_v2():
     test = bfh(PRO_UP_SERV_TX_V2)
-    deser = lib_tx_dash.DeserializerDash(test)
+    deser = lib_tx_firo.DeserializerFiro(test)
     tx = deser.read_tx()
     assert tx.version == 3
     assert tx.tx_type == 2
@@ -402,9 +402,9 @@ def test_dash_tx_pro_up_serv_tx_v2():
     assert ser == test
 
 
-def test_dash_tx_pro_up_reg_tx():
+def test_firo_tx_pro_up_reg_tx():
     test = bfh(PRO_UP_REG_TX)
-    deser = lib_tx_dash.DeserializerDash(test)
+    deser = lib_tx_firo.DeserializerFiro(test)
     tx = deser.read_tx()
     assert tx.version == 3
     assert tx.tx_type == 3
@@ -434,9 +434,9 @@ def test_dash_tx_pro_up_reg_tx():
     assert ser == test
 
 
-def test_dash_tx_pro_up_rev_tx():
+def test_firo_tx_pro_up_rev_tx():
     test = bfh(PRO_UP_REV_TX)
-    deser = lib_tx_dash.DeserializerDash(test)
+    deser = lib_tx_firo.DeserializerFiro(test)
     tx = deser.read_tx()
     assert tx.version == 3
     assert tx.tx_type == 4
@@ -459,9 +459,9 @@ def test_dash_tx_pro_up_rev_tx():
     assert ser == test
 
 
-def test_dash_tx_unknown_spec_tx():
+def test_firo_tx_unknown_spec_tx():
     test = bfh(UNKNOWN_SPEC_TX)
-    deser = lib_tx_dash.DeserializerDash(test)
+    deser = lib_tx_firo.DeserializerFiro(test)
     tx = deser.read_tx()
     assert tx.version == 3
     assert tx.tx_type == 187
@@ -477,9 +477,9 @@ def test_dash_tx_unknown_spec_tx():
     assert ser == test
 
 
-def test_dash_tx_wrong_spec_tx():
+def test_firo_tx_wrong_spec_tx():
     test = bfh(WRONG_SPEC_TX)
-    deser = lib_tx_dash.DeserializerDash(test)
+    deser = lib_tx_firo.DeserializerFiro(test)
     tx = deser.read_tx()
     assert tx.version == 12255234
     assert tx.tx_type == 0
@@ -489,14 +489,14 @@ def test_dash_tx_wrong_spec_tx():
     assert ser == test
 
 
-def test_dash_tx_serialize_wrong_tx_type():
+def test_firo_tx_serialize_wrong_tx_type():
     test = bfh(CB_TX)
-    deser = lib_tx_dash.DeserializerDash(test)
+    deser = lib_tx_firo.DeserializerFiro(test)
     tx = deser.read_tx()
     assert tx.tx_type == 5
     tx.tx_type = 4
     assert tx.tx_type == 4
     with pytest.raises(ValueError) as excinfo:
         ser = tx.serialize()
-    assert ('Dash tx_type does not conform'
+    assert ('Firo tx_type does not conform'
             ' with extra payload class' in str(excinfo.value))

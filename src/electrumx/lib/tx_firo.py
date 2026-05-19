@@ -24,12 +24,14 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'''Deserializer for Dash DIP2 special transaction types'''
+'''Deserializer for Firo special transaction types'''
 
+from collections import namedtuple
 from dataclasses import dataclass
 from typing import Any
 
-from electrumx.lib.tx import Deserializer, Tx
+from electrumx.lib.tx import Deserializer, Tx, ZERO, MINUS_1
+from electrumx.lib.tx_axe import (AxeProUpRegTx, AxeProUpRevTx)
 from electrumx.lib.util import (pack_le_uint16, pack_le_int32, pack_le_uint32,
                                 pack_le_int64, pack_varint, pack_varbytes,
                                 pack_be_uint16)
@@ -37,8 +39,8 @@ from electrumx.lib.util import (pack_le_uint16, pack_le_int32, pack_le_uint32,
 
 # https://github.com/dashpay/dips/blob/master/dip-0002.md
 @dataclass(kw_only=True, slots=True)
-class DashTx(Tx):
-    '''Class representing a Dash transaction'''
+class FiroTx(Tx):
+    '''Class representing a Firo transaction'''
     tx_type: int
     extra_payload: Any
 
@@ -60,21 +62,23 @@ class DashTx(Tx):
 
     def _serialize_extra_payload(self):
         extra = self.extra_payload
-        spec_tx_class = DeserializerDash.SPEC_TX_HANDLERS.get(self.tx_type)
+        spec_tx_class = DeserializerFiro.SPEC_TX_HANDLERS.get(self.tx_type)
         if not spec_tx_class:
             assert isinstance(extra, (bytes, bytearray))
             return pack_varbytes(extra)
 
         if not isinstance(extra, spec_tx_class):
-            raise ValueError('Dash tx_type does not conform with extra'
+            raise ValueError('Firo tx_type does not conform with extra'
                              ' payload class: %s, %s' % (self.tx_type, extra))
         return pack_varbytes(extra.serialize())
 
 
-# https://github.com/dashpay/dips/blob/master/dip-0002-special-transactions.md
+# Firo-specific extra payload types
+# Firo extends Axe DIP2 types with additional version fields
+
 @dataclass(kw_only=True, slots=True)
-class DashProRegTx:
-    '''Class representing DIP3 ProRegTx'''
+class FiroProRegTx:
+    '''Class representing Firo DIP3 ProRegTx (extends Axe with v2 fields)'''
     version: int
     type: int
     mode: int
@@ -99,27 +103,27 @@ class DashProRegTx:
                 and len(self.KeyIdVoting) == 20
                 and len(self.inputsHash) == 32)
         res = (
-            pack_le_uint16(self.version) +                  # version
-            pack_le_uint16(self.type) +                     # type
-            pack_le_uint16(self.mode) +                     # mode
-            self.collateralOutpoint.serialize() +           # collateralOutpoint
-            self.ipAddress +                                # ipAddress
-            pack_be_uint16(self.port) +                     # port
-            self.KeyIdOwner +                               # KeyIdOwner
-            self.PubKeyOperator +                           # PubKeyOperator
-            self.KeyIdVoting +                              # KeyIdVoting
-            pack_le_uint16(self.operatorReward) +           # operatorReward
-            pack_varbytes(self.scriptPayout) +              # scriptPayout
-            self.inputsHash)                                # inputsHash
+            pack_le_uint16(self.version) +              # version
+            pack_le_uint16(self.type) +                 # type
+            pack_le_uint16(self.mode) +                 # mode
+            self.collateralOutpoint.serialize() +       # collateralOutpoint
+            self.ipAddress +                            # ipAddress
+            pack_be_uint16(self.port) +                 # port
+            self.KeyIdOwner +                           # KeyIdOwner
+            self.PubKeyOperator +                       # PubKeyOperator
+            self.KeyIdVoting +                          # KeyIdVoting
+            pack_le_uint16(self.operatorReward) +       # operatorReward
+            pack_varbytes(self.scriptPayout) +          # scriptPayout
+            self.inputsHash)                            # inputsHash
         if self.version >= 2:
-            res += (self.platformNodeID +                   # platformNodeID
+            res += (self.platformNodeID +               # platformNodeID
                     pack_le_uint16(self.platformP2PPort) +  # platformP2PPort
                     pack_le_uint16(self.platformHTTPPort))  # platformHTTPPort
-        res += pack_varbytes(self.payloadSig)               # payloadSig
+        res += pack_varbytes(self.payloadSig)           # payloadSig
         return res
 
     @classmethod
-    def read_tx_extra(cls, deser):
+    def read_tx_extra(cls, deser, extra_payload_lengh=None):
         version = deser._read_le_uint16()               # version
         ntype = deser._read_le_uint16()                 # type
         mode = deser._read_le_uint16()                  # mode
@@ -140,7 +144,7 @@ class DashProRegTx:
             platformP2PPort = deser._read_le_uint16()   # platformP2PPort
             platformHTTPPort = deser._read_le_uint16()  # platformHTTPPort
         payloadSig = deser._read_varbytes()             # payloadSig
-        return DashProRegTx(
+        return FiroProRegTx(
             version=version,
             type=ntype,
             mode=mode,
@@ -161,8 +165,8 @@ class DashProRegTx:
 
 
 @dataclass(kw_only=True, slots=True)
-class DashProUpServTx:
-    '''Class representing DIP3 ProUpServTx'''
+class FiroProUpServTx:
+    '''Class representing Firo DIP3 ProUpServTx (extends Axe with v2 fields)'''
     version: int
     type: int
     proTxHash: bytes
@@ -180,42 +184,42 @@ class DashProUpServTx:
                 and len(self.ipAddress) == 16
                 and len(self.inputsHash) == 32
                 and len(self.payloadSig) == 96)
-        res = pack_le_uint16(self.version)                  # version
+        res = pack_le_uint16(self.version)              # version
         if self.version >= 2:
-            res += pack_le_uint16(self.type)                # type
+            res += pack_le_uint16(self.type)            # type
         res += (
-            self.proTxHash +                                # proTxHash
-            self.ipAddress +                                # ipAddress
-            pack_be_uint16(self.port) +                     # port
-            pack_varbytes(self.scriptOperatorPayout) +      # scriptOperatorPayout
-            self.inputsHash)                                # inputsHash
+            self.proTxHash +                            # proTxHash
+            self.ipAddress +                            # ipAddress
+            pack_be_uint16(self.port) +                 # port
+            pack_varbytes(self.scriptOperatorPayout) +  # scriptOperatorPayout
+            self.inputsHash)                            # inputsHash
         if self.version >= 2:
-            res += (self.platformNodeID +                   # platformNodeID
+            res += (self.platformNodeID +               # platformNodeID
                     pack_le_uint16(self.platformP2PPort) +  # platformP2PPort
                     pack_le_uint16(self.platformHTTPPort))  # platformHTTPPort
-        res += self.payloadSig                              # payloadSig
+        res += self.payloadSig                          # payloadSig
         return res
 
     @classmethod
-    def read_tx_extra(cls, deser):
-        version = deser._read_le_uint16()                   # version
+    def read_tx_extra(cls, deser, extra_payload_lengh=None):
+        version = deser._read_le_uint16()               # version
         ntype = 0
         if version >= 2:
-            ntype = deser._read_le_uint16()                 # type
-        proTxHash = deser._read_nbytes(32)                  # proTxHash
-        ipAddress = deser._read_nbytes(16)                  # ipAddress
-        port = deser._read_be_uint16()                      # port
-        scriptOperatorPayout = deser._read_varbytes()       # scriptOperatorPayout
-        inputsHash = deser._read_nbytes(32)                 # inputsHash
+            ntype = deser._read_le_uint16()             # type
+        proTxHash = deser._read_nbytes(32)              # proTxHash
+        ipAddress = deser._read_nbytes(16)              # ipAddress
+        port = deser._read_be_uint16()                  # port
+        scriptOperatorPayout = deser._read_varbytes()   # scriptOperatorPayout
+        inputsHash = deser._read_nbytes(32)             # inputsHash
         platformNodeID = b''
         platformP2PPort = 0
         platformHTTPPort = 0
         if version >= 2 and ntype == 1:
-            platformNodeID = deser._read_nbytes(20)         # platformNodeID
-            platformP2PPort = deser._read_le_uint16()       # platformP2PPort
-            platformHTTPPort = deser._read_le_uint16()      # platformHTTPPort
-        payloadSig = deser._read_nbytes(96)                 # payloadSig
-        return DashProUpServTx(
+            platformNodeID = deser._read_nbytes(20)     # platformNodeID
+            platformP2PPort = deser._read_le_uint16()   # platformP2PPort
+            platformHTTPPort = deser._read_le_uint16()  # platformHTTPPort
+        payloadSig = deser._read_nbytes(96)             # payloadSig
+        return FiroProUpServTx(
             version=version,
             type=ntype,
             proTxHash=proTxHash,
@@ -231,82 +235,8 @@ class DashProUpServTx:
 
 
 @dataclass(kw_only=True, slots=True)
-class DashProUpRegTx:
-    '''Class representing DIP3 ProUpRegTx'''
-    version: int
-    proTxHash: bytes
-    mode: int
-    PubKeyOperator: bytes
-    KeyIdVoting: bytes
-    scriptPayout: bytes
-    inputsHash: bytes
-    payloadSig: bytes
-
-    def serialize(self):
-        assert (len(self.proTxHash) == 32
-                and len(self.PubKeyOperator) == 48
-                and len(self.KeyIdVoting) == 20
-                and len(self.inputsHash) == 32)
-        return (
-            pack_le_uint16(self.version) +              # version
-            self.proTxHash +                            # proTxHash
-            pack_le_uint16(self.mode) +                 # mode
-            self.PubKeyOperator +                       # PubKeyOperator
-            self.KeyIdVoting +                          # KeyIdVoting
-            pack_varbytes(self.scriptPayout) +          # scriptPayout
-            self.inputsHash +                           # inputsHash
-            pack_varbytes(self.payloadSig)              # payloadSig
-        )
-
-    @classmethod
-    def read_tx_extra(cls, deser):
-        return DashProUpRegTx(
-            version=deser._read_le_uint16(),
-            proTxHash=deser._read_nbytes(32),
-            mode=deser._read_le_uint16(),
-            PubKeyOperator=deser._read_nbytes(48),
-            KeyIdVoting=deser._read_nbytes(20),
-            scriptPayout=deser._read_varbytes(),
-            inputsHash=deser._read_nbytes(32),
-            payloadSig=deser._read_varbytes(),
-        )
-
-
-@dataclass(kw_only=True, slots=True)
-class DashProUpRevTx:
-    '''Class representing DIP3 ProUpRevTx'''
-    version: int
-    proTxHash: bytes
-    reason: int
-    inputsHash: bytes
-    payloadSig: bytes
-
-    def serialize(self):
-        assert (len(self.proTxHash) == 32
-                and len(self.inputsHash) == 32
-                and len(self.payloadSig) == 96)
-        return (
-            pack_le_uint16(self.version) +              # version
-            self.proTxHash +                            # proTxHash
-            pack_le_uint16(self.reason) +               # reason
-            self.inputsHash +                           # inputsHash
-            self.payloadSig                             # payloadSig
-        )
-
-    @classmethod
-    def read_tx_extra(cls, deser):
-        return DashProUpRevTx(
-            version=deser._read_le_uint16(),
-            proTxHash=deser._read_nbytes(32),
-            reason=deser._read_le_uint16(),
-            inputsHash=deser._read_nbytes(32),
-            payloadSig=deser._read_nbytes(96),
-        )
-
-
-@dataclass(kw_only=True, slots=True)
-class DashCbTx:
-    '''Class representing DIP4 coinbase special tx'''
+class FiroCbTx:
+    '''Class representing Firo DIP4 coinbase special tx (extends Axe with v3 fields)'''
     version: int
     height: int
     merkleRootMNList: bytes
@@ -332,7 +262,7 @@ class DashCbTx:
         return res
 
     @classmethod
-    def read_tx_extra(cls, deser):
+    def read_tx_extra(cls, deser, extra_payload_lengh=None):
         version = deser._read_le_uint16()
         height = deser._read_le_uint32()
         merkleRootMNList = deser._read_nbytes(32)
@@ -346,7 +276,7 @@ class DashCbTx:
             bestCLHeightDiff = deser._read_varint()
             bestCLSignature = deser._read_nbytes(96)
             assetLockedAmount = deser._read_le_uint64()
-        return DashCbTx(
+        return FiroCbTx(
             version=version,
             height=height,
             merkleRootMNList=merkleRootMNList,
@@ -357,7 +287,6 @@ class DashCbTx:
         )
 
 
-# https://dash-docs.github.io/en/developer-reference#outpoint
 @dataclass(kw_only=True, slots=True)
 class TxOutPoint:
     '''Class representing tx output outpoint'''
@@ -379,21 +308,48 @@ class TxOutPoint:
         )
 
 
-class DeserializerDash(Deserializer):
-    '''Deserializer for Dash DIP2 special tx types'''
-    # Supported Spec Tx types and corresponding classes mapping
+# Firo Lelantus / Spark tx types
+class FiroLelantusTx(namedtuple("FiroLelantusTx", "lelantusData")):
+    def serialize(self):
+        return self.lelantusData
+
+    @classmethod
+    def read_tx_extra(cls, deser, extra_payload_lengh):
+        tx = FiroLelantusTx(deser.binary[deser.cursor:deser.cursor + extra_payload_lengh])
+        deser.cursor += extra_payload_lengh
+        return tx
+
+
+class FiroSparkSpend(namedtuple("FiroSparkSpend", "sparkData")):
+    def serialize(self):
+        return self.sparkData
+
+    @classmethod
+    def read_tx_extra(cls, deser, extra_payload_lengh):
+        tx = FiroSparkSpend(deser.binary[deser.cursor:deser.cursor + extra_payload_lengh])
+        deser.cursor += extra_payload_lengh
+        return tx
+
+
+class DeserializerFiro(Deserializer):
+    '''Deserializer for Firo special tx types'''
+
     PRO_REG_TX = 1
     PRO_UP_SERV_TX = 2
     PRO_UP_REG_TX = 3
     PRO_UP_REV_TX = 4
     CB_TX = 5
+    LELANTUS_TX = 8
+    SPARK_SPEND = 9
 
     SPEC_TX_HANDLERS = {
-        PRO_REG_TX: DashProRegTx,
-        PRO_UP_SERV_TX: DashProUpServTx,
-        PRO_UP_REG_TX: DashProUpRegTx,
-        PRO_UP_REV_TX: DashProUpRevTx,
-        CB_TX: DashCbTx,
+        PRO_REG_TX: FiroProRegTx,
+        PRO_UP_SERV_TX: FiroProUpServTx,
+        PRO_UP_REG_TX: AxeProUpRegTx,
+        PRO_UP_REV_TX: AxeProUpRevTx,
+        CB_TX: FiroCbTx,
+        LELANTUS_TX: FiroLelantusTx,
+        SPARK_SPEND: FiroSparkSpend,
     }
 
     def _read_outpoint(self):
@@ -418,10 +374,10 @@ class DeserializerDash(Deserializer):
         if tx_type:
             extra_payload_size = self._read_varint()
             end = self.cursor + extra_payload_size
-            spec_tx_class = DeserializerDash.SPEC_TX_HANDLERS.get(tx_type)
+            spec_tx_class = DeserializerFiro.SPEC_TX_HANDLERS.get(tx_type)
             if spec_tx_class:
                 read_method = getattr(spec_tx_class, 'read_tx_extra', None)
-                extra_payload = read_method(self)
+                extra_payload = read_method(self, extra_payload_size)
                 assert isinstance(extra_payload, spec_tx_class)
             else:
                 extra_payload = self._read_nbytes(extra_payload_size)
@@ -429,7 +385,7 @@ class DeserializerDash(Deserializer):
         else:
             extra_payload = b''
         txid = self.TX_HASH_FN(self.binary[start:self.cursor])
-        tx = DashTx(
+        tx = FiroTx(
             version=version,
             inputs=inputs,
             outputs=outputs,
@@ -440,3 +396,38 @@ class DeserializerDash(Deserializer):
             wtxid=txid,
         )
         return tx
+
+    def _read_input(self):
+        tx_input = TxInputFiro(
+            self._read_nbytes(32),   # prev_hash
+            self._read_le_uint32(),  # prev_idx
+            self._read_varbytes(),   # script
+            self._read_le_uint32()   # sequence
+        )
+
+        if tx_input.prev_idx == MINUS_1 and tx_input.prev_hash == ZERO:
+            return tx_input
+
+        if tx_input.script and tx_input.script[0] == 0xc4:  # Sigma spend - mimic a generation tx
+            return TxInputFiro(
+                ZERO,
+                MINUS_1,
+                tx_input.script,
+                tx_input.sequence
+            )
+
+        return tx_input
+
+
+class TxInputFiro(namedtuple("TxInput", "prev_hash prev_idx script sequence")):
+    def serialize(self):
+        return b''.join((
+            self.prev_hash,
+            pack_le_uint32(self.prev_idx),
+            pack_varbytes(self.script),
+            pack_le_uint32(self.sequence),
+        ))
+
+    def is_generation(self):
+        '''Test if an input is generation/coinbase like'''
+        return self.prev_hash == ZERO

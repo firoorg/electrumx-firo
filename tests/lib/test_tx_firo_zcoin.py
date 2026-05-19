@@ -1,4 +1,5 @@
 import electrumx.lib.tx as tx_lib
+import electrumx.lib.tx_firo as tx_firo_lib
 
 tests = [
     "0100000001000000000000000000000000000000000000000000000000000000000000"
@@ -47,7 +48,7 @@ tests = [
 def test_tx_serialiazation():
     for test in tests:
         test = bytes.fromhex(test)
-        deser_xzc = tx_lib.DeserializerFiro(test)
+        deser_xzc = tx_firo_lib.DeserializerFiro(test)
         tx = deser_xzc.read_tx()
         assert tx.inputs[0].prev_hash == tx_lib.ZERO
         assert tx.inputs[0].prev_idx  == tx_lib.MINUS_1
