@@ -1720,6 +1720,13 @@ class ElectrumX(SessionBase):
             self.bump_cost(cost)
             return hash_to_hex_str(tx_hash)
 
+    async def block_txids(self, height):
+        '''Return all txids in a block at the given height.'''
+        height = non_negative_integer(height)
+        tx_hashes, cost = await self.session_mgr.tx_hashes_at_blockheight(height)
+        self.bump_cost(cost)
+        return [hash_to_hex_str(h) for h in tx_hashes]
+
     async def compact_fee_histogram(self):
         self.bump_cost(1.0)
         return await self.mempool.compact_fee_histogram()
@@ -1730,6 +1737,7 @@ class ElectrumX(SessionBase):
         handlers = {
             'blockchain.block.header': self.block_header,
             'blockchain.block.headers': self.block_headers,
+            'blockchain.block.txids': self.block_txids,
             'blockchain.estimatefee': self.estimatefee,
             'blockchain.headers.subscribe': self.headers_subscribe,
             'blockchain.scripthash.get_balance': self.scripthash_get_balance,
